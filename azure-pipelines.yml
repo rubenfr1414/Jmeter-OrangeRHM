@@ -1,28 +1,24 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main  # Cambia a la rama que uses
+- main  # Cambia a tu rama si usas otra
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: Default  # Asegúrate que sea el pool donde está tu agente local
 
 variables:
   JMETER_VERSION: '5.5'
+  JMETER_FOLDER: 'apache-jmeter-$(JMETER_VERSION)'
 
 steps:
 
-- script: |
-    echo "Descargando Apache JMeter..."
-    wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-$(JMETER_VERSION).tgz
-    tar -xvzf apache-jmeter-$(JMETER_VERSION).tgz
+- powershell: |
+    Write-Host "Descargando Apache JMeter..."
+    Invoke-WebRequest -Uri "https://downloads.apache.org/jmeter/binaries/apache-jmeter-$(JMETER_VERSION).zip" -OutFile "$(JMETER_FOLDER).zip"
+    Expand-Archive -Path "$(JMETER_FOLDER).zip" -DestinationPath .
   displayName: 'Descargar JMeter'
 
-- script: |
-    echo "Ejecutando prueba JMeter..."
-    ./apache-jmeter-$(JMETER_VERSION)/bin/jmeter -n -t pruebas/ScriptOrange.jmx -l resultados/resultados.jtl
+- powershell: |
+    Write-Host "Ejecutando prueba JMeter..."
+    .\$(JMETER_FOLDER)\bin\jmeter.bat -n -t pruebas\ScriptOrange.jmx -l resultados\resultados.jtl
   displayName: 'Ejecutar prueba JMeter'
 
 - task: PublishBuildArtifacts@1
