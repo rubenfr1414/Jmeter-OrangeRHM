@@ -1,29 +1,23 @@
 trigger:
-- main  # Cambia a tu rama si usas otra
+- main  # Ajusta a la rama que estás usando
 
 pool:
-  name: Default  # Asegúrate que sea el pool donde está tu agente local
+  name: Default  # Usa el nombre del pool que apunta a tu agente local
 
 variables:
-  JMETER_VERSION: '5.5'
-  JMETER_FOLDER: 'apache-jmeter-$(JMETER_VERSION)'
+  JMETER_HOME: 'C:\apache-jmeter-5.5'  # Cambia esta ruta si lo tienes en otro lugar
 
 steps:
 
 - powershell: |
-    Write-Host "Descargando Apache JMeter..."
-    Invoke-WebRequest -Uri "https://downloads.apache.org/jmeter/binaries/apache-jmeter-$(JMETER_VERSION).zip" -OutFile "$(JMETER_FOLDER).zip"
-    Expand-Archive -Path "$(JMETER_FOLDER).zip" -DestinationPath .
-  displayName: 'Descargar JMeter'
-
-- powershell: |
     Write-Host "Ejecutando prueba JMeter..."
-    .\$(JMETER_FOLDER)\bin\jmeter.bat -n -t pruebas\ScriptOrange.jmx -l resultados\resultados.jtl
+    & "$(JMETER_HOME)\bin\jmeter.bat" -n -t "$(Build.SourcesDirectory)\ScriptOrange.jmx" -l "$(Build.SourcesDirectory)\resultados\resultados.jtl"
   displayName: 'Ejecutar prueba JMeter'
 
 - task: PublishBuildArtifacts@1
   inputs:
-    pathToPublish: 'resultados'
+    pathToPublish: '$(Build.SourcesDirectory)\resultados'
     artifactName: 'ResultadosJMeter'
     publishLocation: 'Container'
-  displayName: 'Publicar resultados'
+  displayName: 'Publicar resultados JMeter'
+
