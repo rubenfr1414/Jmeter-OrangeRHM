@@ -1,0 +1,23 @@
+trigger:
+- main  # Ajusta a la rama que estás usando
+
+pool:
+  name: Default  # Usa el nombre del pool que apunta a tu agente local
+
+variables:
+  JMETER_HOME: 'C:\apache-jmeter-5.5'  # Cambia esta ruta si lo tienes en otro lugar
+
+steps:
+
+- powershell: |
+    Write-Host "Ejecutando prueba JMeter..."
+    & "$(JMETER_HOME)\bin\jmeter.bat" -n -t "$(Build.SourcesDirectory)\ScriptOrange.jmx" -l "$(Build.SourcesDirectory)\resultados\resultados.jtl"
+  displayName: 'Ejecutar prueba JMeter'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.SourcesDirectory)\resultados'
+    artifactName: 'ResultadosJMeter'
+    publishLocation: 'Container'
+  displayName: 'Publicar resultados JMeter'
+
